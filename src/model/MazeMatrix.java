@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
-import java.util.Stack;
 
 /**
  * Represents a maze.
@@ -11,9 +10,9 @@ import java.util.Stack;
  * whereas 1 represents a 'train' 0 represents a wall.
  *
  */
-public class MazeMatrix {
+public class MazeMatrix implements IMazeGenerator {
 
-	final static int MIN_EXIT_DISTANCE_FROM_ENTRY = 17;
+	final static int MIN_EXIT_DISTANCE_FROM_ENTRY = 12;
 
 	private int m_startX;
 	private int m_startY;
@@ -21,14 +20,6 @@ public class MazeMatrix {
 	private int m_width;
 	private int[][] m_maze;
 	private boolean m_isMazeInitialized;
-
-	public static enum DIR {
-		RIGHT(2), LEFT(4), UP(8), DOWN(16);
-
-		private final int dir;
-		DIR(int dir) { this.dir = dir; }
-		public int value() { return dir; }
-	}
 
 	/**
 	 * C'tor, initializes necessary members
@@ -42,11 +33,17 @@ public class MazeMatrix {
 		m_isMazeInitialized = false;
 	}
 
-
+	@Override
 	public int getStartX() { return m_startX;}
-	public int getStartY() { return m_startY;}	
+	
+	@Override
+	public int getStartY() { return m_startY;}
+	
+	@Override
 	public int height() {return m_height;}
 	public void setHeight (int height) {m_height = height;}
+	
+	@Override
 	public int width() {return m_width;}
 	public void setWidth (int width) {m_width = width;}
 
@@ -54,6 +51,7 @@ public class MazeMatrix {
 	 * Returns the maze
 	 * @return
 	 */
+	@Override
 	public int[][] getMaze()
 	{
 		if (!m_isMazeInitialized) {
@@ -209,8 +207,7 @@ public class MazeMatrix {
 			lastVisitedY = y;
 		}
 		while (0 != x && (m_width - 1) != x && (m_height -1) != y && 0 != y);
-		// Add random paths to the maze and return it 
-		//randomizeMaze();
+		// TODO: Delete this
 		for (int i = 0; i < m_height; ++i) {
 			for (int j = 0; j < m_width; ++j) {
 				System.out.print(m_maze[j][i] + " ");
@@ -220,24 +217,4 @@ public class MazeMatrix {
 
 
 	}
-
-	/*public static void main(String[] args)
-	{
-		MazeMatrix m = new MazeMatrix(20,20);
-		int[][] arr = m.getMaze();
-		for (int i = 0; i < m.m_height; ++i) {
-			for (int j = 0; j < m.m_width; ++j) {
-				System.out.print(arr[i][j] + " ");
-			}
-			System.out.print("\n");
-		}
-
-		Point p = BFS.getPathBFS(m);
-
-        while(p.getParent() != null) {
-            System.out.println("("+p.getY() + ","+p.getX() + ")");
-            p = p.getParent();
-        }
-        System.out.println("("+p.getY() + ","+p.getX() + ")");
-	}
-	 */}
+}

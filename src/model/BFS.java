@@ -1,12 +1,9 @@
 package model;
-import java.util.Arrays;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class BFS { 
-
-
-	
+public class BFS implements IMazeSolveStrategy{ 
 	/**
 	 * Checks if the point is on the edge of the maze
 	 * @param p				The point we wish to check
@@ -34,13 +31,14 @@ public class BFS {
 	 * @return	A point describing the found exit, which is linked to the entire path of the trail.
 	 * 			null if not found
 	 */
-    public static Point getPathBFS (MazeMatrix matrix) {
-
+	
+	@Override
+	public Point solve(IMazeGenerator matrix, Point start) {
     	// Initialize the run. Insert the root node to the queue
     	Queue<Point> visitQueue = new LinkedList<Point>();
     	int[][] arr = matrix.getMaze();
-    	Point startPoint = new Point(matrix.getStartX(), matrix.getStartY(), null);
-    	
+    	Point startPoint = start;//new Point(matrix.getStartX(), matrix.getStartY(), null);
+    	Point mazeEntrance = new Point(matrix.getStartX(), matrix.getStartY(), null);
         visitQueue.add(startPoint);
 
         // Iterate the queue (Each level at a time, if we look at the maze's different paths as a binary tree)
@@ -50,7 +48,7 @@ public class BFS {
             int currentY = p.getY();
             
             // If we've arrived at an edge which is not our starting point - it's the exit
-            if (isOnEdge(p, matrix.width(), matrix.height()) && !isEqual(p, startPoint)) {
+            if (isOnEdge(p, matrix.width(), matrix.height()) && !isEqual(p, mazeEntrance)) {
                 return p;
             }
             
