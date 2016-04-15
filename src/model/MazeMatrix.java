@@ -12,15 +12,15 @@ import java.util.Random;
  */
 public class MazeMatrix implements IMazeGenerator {
 
-	final static int MIN_EXIT_DISTANCE_FROM_ENTRY = 12;
-
+	private int m_minimumTrailLength;
 	private int m_startX;
 	private int m_startY;
 	private int m_height;
 	private int m_width;
 	private int[][] m_maze;
 	private boolean m_isMazeInitialized;
-
+	private Point m_end;
+	
 	/**
 	 * C'tor, initializes necessary members
 	 * @param height	The height of the maze
@@ -28,9 +28,11 @@ public class MazeMatrix implements IMazeGenerator {
 	 */
 	public MazeMatrix(int height, int width)
 	{
+		m_end = null;
 		m_height = height;
 		m_width = width;	
 		m_isMazeInitialized = false;
+		m_minimumTrailLength = (height + width) / 2;
 	}
 
 	@Override
@@ -139,7 +141,7 @@ public class MazeMatrix implements IMazeGenerator {
 						continue;
 
 					if (!(((1 == y || y - 1 == m_height - 1) || (0 == x || m_width - 1 == x))
-							&&((Math.abs(m_startX - x) + Math.abs(m_startY - (y - 1)) < MIN_EXIT_DISTANCE_FROM_ENTRY))))
+							&&((Math.abs(m_startX - x) + Math.abs(m_startY - (y - 1)) < m_minimumTrailLength))))
 					{ 
 						if (isDeadlock || (m_maze[x][y - 1] & DIR.UP.value()) == 0 || m_maze[x][y] >= 30)
 						{
@@ -155,7 +157,7 @@ public class MazeMatrix implements IMazeGenerator {
 					if (x + 1 == m_width)
 						continue;
 					if (!((0 == y || y == (m_height - 1) ||(m_width - 2) == x)
-							&& ((Math.abs(m_startX - (x + 1)) + Math.abs(m_startY - y) < MIN_EXIT_DISTANCE_FROM_ENTRY))))
+							&& ((Math.abs(m_startX - (x + 1)) + Math.abs(m_startY - y) < m_minimumTrailLength))))
 					{
 						if (isDeadlock || (m_maze[x + 1][y] & DIR.LEFT.value()) == 0 || m_maze[x][y] >= 30) {
 							m_maze[x][y] |= DIR.RIGHT.value();
@@ -170,7 +172,7 @@ public class MazeMatrix implements IMazeGenerator {
 					if (y + 1 == m_height)
 						continue;
 					if (!(((m_height - 2) == y || 0 == x || (m_width - 1) == x)
-							&&  ((Math.abs(m_startX - x) + Math.abs(m_startY - (y + 1)) < MIN_EXIT_DISTANCE_FROM_ENTRY))))
+							&&  ((Math.abs(m_startX - x) + Math.abs(m_startY - (y + 1)) < m_minimumTrailLength))))
 					{
 						if (isDeadlock || (m_maze[x][y + 1] & DIR.DOWN.value()) == 0 || m_maze[x][y] >= 30) {
 							m_maze[x][y] |= DIR.UP.value();
@@ -185,7 +187,7 @@ public class MazeMatrix implements IMazeGenerator {
 					if (x - 1 < 0)
 						continue;
 					if (!((0 == y || m_height - 1 == y || 1 == x )
-							&& ((Math.abs(m_startX - (x - 1)) + Math.abs(m_startY - y) < MIN_EXIT_DISTANCE_FROM_ENTRY))))
+							&& ((Math.abs(m_startX - (x - 1)) + Math.abs(m_startY - y) < m_minimumTrailLength))))
 					{
 						if (isDeadlock || (m_maze[x-x][y] & DIR.RIGHT.value()) == 0 || m_maze[x][y] >= 30) {
 							m_maze[x][y] |= DIR.LEFT.value();
@@ -207,14 +209,11 @@ public class MazeMatrix implements IMazeGenerator {
 			lastVisitedY = y;
 		}
 		while (0 != x && (m_width - 1) != x && (m_height -1) != y && 0 != y);
-		// TODO: Delete this
-		for (int i = 0; i < m_height; ++i) {
-			for (int j = 0; j < m_width; ++j) {
-				System.out.print(m_maze[j][i] + " ");
-			}
-			System.out.print("\n");
-		}
+		m_end = new Point(x, y, null);
+	}
 
-
+	@Override
+	public Point getEndPoint() {
+		return m_end;
 	}
 }

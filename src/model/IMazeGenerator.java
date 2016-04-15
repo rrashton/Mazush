@@ -11,7 +11,8 @@ public interface IMazeGenerator {
 	
 	public int width();
 	
-
+	public Point getEndPoint();
+	
 	public static enum DIR {
 		RIGHT(2), LEFT(4), UP(8), DOWN(16);
 

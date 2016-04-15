@@ -4,25 +4,28 @@ import model.Player;
 import model.IMazeGenerator;
 import model.Point;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 
-public class UI {
+public class UI implements IMazeView{
 
-	public int m_size;
+	private int m_size;
 	private IMazeGenerator m_maze;
-	public Shell shell;
-	public Display display;
-	public GridLayout layout;
-	public UI(IMazeGenerator maze) {
+	private Shell shell;
+	private Display display;
+	private GridLayout layout;
+	
+	public UI(IMazeGenerator maze, int size) {
 
-		m_size = 400;
+		m_size = size;
 		layout = new GridLayout();
-		layout.marginWidth = 200;
-		layout.marginHeight = 200;
+		layout.marginWidth = size / 2;
+		layout.marginHeight = size /  2;
 		layout.numColumns = 3;
 	    display = new Display();
 		m_maze = maze;
@@ -33,6 +36,8 @@ public class UI {
 		shell.setText("Maze");
 
 	}
+	
+	@Override
 	public void drawPlayer(GC gc, Player p, int color)
 	{
 		//Display display = Display.getCurrent();
@@ -40,7 +45,7 @@ public class UI {
 		gc.fillOval(p.x, p.y, p.xSize, p.ySize);
 	}
 
-	
+	@Override
 	public void paintCell(GC gc, int color, Point p)
 	{
 		int widthLineSize = (m_size - 100) / m_maze.width();
@@ -52,6 +57,56 @@ public class UI {
 		gc.fillRectangle(xStartPoint + 2, yStartPoint + 2, widthLineSize - 4, heightLineSize - 4);
 	}
 	
+	@Override
+	public void openView()
+	{
+		shell.pack();
+		shell.open ();
+	}
+	
+	@Override
+	public void registerPainter(PaintListener p)
+	{
+		shell.addPaintListener(p);
+	}
+	
+	@Override
+	public void waitToDispose()
+	{
+		while (!shell.isDisposed ()) {
+			if (!display.readAndDispatch ()) 
+				display.sleep ();
+		}
+		display.dispose ();
+	}
+	
+	@Override
+	public void registerKeyPressListener(Listener l)
+	{
+		display.addFilter(SWT.KeyDown, l);
+	}
+	
+	@Override 
+	public void refresh()
+	{
+		shell.redraw();
+		shell.update();
+	}
+	
+	@Override
+	public void paint(PaintListener p) 
+	{
+		registerPainter(p);
+		refresh();
+		shell.removePaintListener(p);
+	}
+	
+	@Override
+	public int getSize() {
+		return m_size;
+	}
+	
+	@Override
 	public void drawMaze(GC gc)
 	{   
 		int[][] mazeArr = m_maze.getMaze();

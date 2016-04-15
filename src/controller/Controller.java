@@ -10,27 +10,40 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import model.BFS;
 import model.IMazeGenerator;
+import view.IMazeView;
 import view.UI;
 import model.Player;
 import model.Point;
 
 public class Controller {
 
-	private UI m_ui;
+	private IMazeView m_ui;
 	private Player p;
 	private IMazeGenerator m_matrix;
 
 	public Controller(IMazeGenerator generator)
 	{
 		m_matrix = generator;
-		m_ui = new UI(m_matrix);
+		m_ui = new UI(m_matrix, getUISize());
 		p = initializePlayer();
 	}
 
-	public void drawSolution(GC gc, Player p, int limit, Point path)
+	private int getUISize()
+	{
+		String sizeInPX = JOptionPane.showInputDialog(
+				"Enter Size In PIXELS. Invalid value would lead to default value of 400");
+		int num = 400;
+		try {
+			num = Integer.parseInt(sizeInPX);
+		} catch(NumberFormatException exc) {
+		}
+		
+		return num;
+	}
+	
+	private void drawSolution(GC gc, Player p, int limit, Point path)
 	{
 		limit += 1; //The current position is also printed as a marked junction
 		int counter = 0;
@@ -47,7 +60,7 @@ public class Controller {
 
 	}
 
-	void movePlayer(GC gc, Player p, IMazeGenerator.DIR dir)
+	private void movePlayer(GC gc, Player p, IMazeGenerator.DIR dir)
 	{
 		m_ui.drawPlayer(gc, p, SWT.COLOR_WHITE);
 		System.out.println("("+p.actualLocation.getX()+","+p.actualLocation.getY()+") = " + m_matrix.getMaze()[p.actualLocation.getX()][p.actualLocation.getY()]);
@@ -102,27 +115,22 @@ public class Controller {
 			public void paintControl(PaintEvent e){
 				m_ui.drawMaze(e.gc);
 				m_ui.drawPlayer(e.gc, p ,SWT.COLOR_BLUE);
+				m_ui.paintCell(e.gc, SWT.COLOR_YELLOW, m_matrix.getEndPoint());
 			}
 		};
-		m_ui.shell.addPaintListener(pa);
-
-		m_ui.shell.pack();
-		m_ui.shell.open ();
+		
+		m_ui.registerPainter(pa);
+		m_ui.openView();
 	}
 
 	public void waitToDispose()
 	{
-		while (!m_ui.shell.isDisposed ()) {
-			if (!m_ui.display.readAndDispatch ()) 
-				m_ui.display.sleep ();
-		}
-		m_ui.display.dispose ();
+		m_ui.waitToDispose();
 	}
+	
 	public void registerInputListener()
 	{
-		Shell shell = m_ui.shell;
-
-		m_ui.display.addFilter(SWT.KeyDown, new Listener(){
+		Listener l = new Listener(){
 
 			@Override
 			public void handleEvent(Event event) {
@@ -133,10 +141,7 @@ public class Controller {
 							movePlayer(e.gc, p, IMazeGenerator.DIR.UP);
 						}
 					};
-					shell.addPaintListener(pa);
-					shell.redraw();
-					shell.update();
-					shell.removePaintListener(pa);
+					m_ui.paint(pa);
 					break; 
 				}
 				case SWT.ARROW_LEFT: {
@@ -146,10 +151,7 @@ public class Controller {
 							movePlayer(e.gc, p, IMazeGenerator.DIR.LEFT);
 						}
 					};
-					shell.addPaintListener(pa);
-					shell.redraw();
-					shell.update();
-					shell.removePaintListener(pa);
+					m_ui.paint(pa);
 					break; 
 				}
 				case SWT.ARROW_RIGHT: {	
@@ -159,10 +161,7 @@ public class Controller {
 							movePlayer(e.gc, p, IMazeGenerator.DIR.RIGHT);
 						}
 					};
-					shell.addPaintListener(pa);
-					shell.redraw();
-					shell.update();
-					shell.removePaintListener(pa);
+					m_ui.paint(pa);
 					break; 
 				}
 				case SWT.ARROW_UP: {	
@@ -171,10 +170,7 @@ public class Controller {
 							movePlayer(e.gc, p, IMazeGenerator.DIR.DOWN);
 						}
 					};
-					shell.addPaintListener(pa);
-					shell.redraw();
-					shell.update();
-					shell.removePaintListener(pa);
+					m_ui.paint(pa);
 					break; 
 				} 
 
@@ -198,10 +194,7 @@ public class Controller {
 							m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);
 						}
 					};
-					shell.addPaintListener(pa);
-					shell.redraw();
-					shell.update();
-					shell.removePaintListener(pa);
+					m_ui.paint(pa);
 					break; 
 				} 
 
@@ -211,23 +204,17 @@ public class Controller {
 
 			} 
 
-		});
+		};
 
-
-		while (!shell.isDisposed ()) {
-			if (!m_ui.display.readAndDispatch ()) {
-				m_ui.display.sleep ();
-			}
-		}
-		m_ui.display.dispose ();
-
+		m_ui.registerKeyPressListener(l);
 	}
 
+	
 	private Player initializePlayer()
 	{
 		//TODO: Fix the m_size to a func
-		int widthLineSize = (m_ui.m_size - 100) / m_matrix.width();
-		int heightLineSize = (m_ui.m_size- 100) / m_matrix.height();
+		int widthLineSize = (m_ui.getSize() - 100) / m_matrix.width();
+		int heightLineSize = (m_ui.getSize()- 100) / m_matrix.height();
 
 		return new Player(50 + m_matrix.getStartX() * widthLineSize + widthLineSize / 4,
 				50 + m_matrix.getStartY() * heightLineSize + heightLineSize / 4, 
