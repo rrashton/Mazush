@@ -1,5 +1,10 @@
 package model;
 
+/**
+ * Represents a player in the maze
+ * @author Roy Rashti
+ *
+ */
 public class Player
 {
 	public Player(int x, int y, int xSize, int ySize, int widthStepSize, int heightStepSize, Point p)

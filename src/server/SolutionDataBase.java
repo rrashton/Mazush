@@ -5,42 +5,53 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-
 import model.BFS;
 import model.MazeMatrix;
 import model.Point;
 
-
+/**
+ * Represents a database for maze solutions
+ * @author Roy Rashti
+ *
+ */
 public class SolutionDataBase {
 
+	// Filename of the database
 	private static String dbName = "solutions.db";
 	
+	/**
+	 * Serializes the current database that's kept on the RAM to the HDD
+	 */
 	private void serializeToFile()
 	{
-		ObjectOutputStream oos = null;
-		FileOutputStream fout = null;
+		ObjectOutputStream objectOStream = null;
+		FileOutputStream fileOStream = null;
 		try {
-		fout = new FileOutputStream(dbName, false);
-		oos = new ObjectOutputStream(fout);
-		oos.writeObject(m_dict);
+		fileOStream = new FileOutputStream(dbName, false);
+		objectOStream = new ObjectOutputStream(fileOStream);
+		objectOStream.writeObject(m_dict);
 		} catch (Exception e) {
 			
 		}
 		 try {
-			 if (oos != null)
+			 if (objectOStream != null)
 			 {
-				 oos.close();
+				 objectOStream.close();
 			 }
 		 } catch (Exception e ) {}
 		 
 		 try {
-			 if (fout != null)
+			 if (fileOStream != null)
 			 {
-				 fout.close();
+				 fileOStream.close();
 			 }
 		 } catch (Exception e ) {}
 	}
 	
+	/**
+	 * A static function that deserializes a database from the HDD
+	 * @return
+	 */
 	public static SolutionDataBase fromFile()
 	{
 		FileInputStream streamIn = null;
@@ -67,19 +78,32 @@ public class SolutionDataBase {
 		}
 	}
 	
+	/**
+	 * Default c'tor
+	 */
 	public SolutionDataBase()
 	{
 		m_dict = new HashMap<Pair<MazeMatrix, model.Point>, model.Point>(); 	
 	}
 	
+	/**
+	 * Constructs the object and assigns an existing hashmap of solutions
+	 * @param solutions The existing solutions in an hashmap
+	 */
 	public SolutionDataBase(HashMap<Pair<MazeMatrix, model.Point>, model.Point> solutions)
 	{
 		m_dict = solutions;
 	}
 	
+	/**
+	 * Returns the solution of a maze. If exists in the database - returns it,
+	 * otherwise solves it and adds it to the database
+	 * @param matrix		The matrix that needs to be solved
+	 * @param startingPoint	The starting point within the matrix
+	 * @return	Solution for the maze and starting point
+	 */
 	public Point getSolution(MazeMatrix matrix, Point startingPoint)
 	{
-		System.out.println("Trying to solve");
 		Pair<MazeMatrix, Point> p = new Pair<MazeMatrix, Point>(matrix, startingPoint);
 		Point solution = null;
 		try {
@@ -90,7 +114,6 @@ public class SolutionDataBase {
 		}
 		
 		if (null != solution) {
-			System.out.println("Already existed! Cache is great!!");
 			return solution;
 		}
 		
@@ -101,5 +124,6 @@ public class SolutionDataBase {
 		return solution;
 		
 	}
+	
 	private HashMap<Pair<MazeMatrix, model.Point>, model.Point> m_dict;
 }

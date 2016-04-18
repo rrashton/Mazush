@@ -133,7 +133,6 @@ public class UI implements IMazeView{
 				}
 
 				// If blocked from down
-
 				if (0 == j ||
 						(0 == (mazeArr[i][j] & IMazeGenerator.DIR.DOWN.value()) && 0 == (mazeArr[i][j - 1] & IMazeGenerator.DIR.UP.value()))) {
 					gc.drawLine(widthStart, heightStart, widthStart + widthLineSize, heightStart);
@@ -147,5 +146,10 @@ public class UI implements IMazeView{
 
 			}
 		}
+	}
+
+	@Override
+	public void runAsyncDisplay(Runnable r) {
+		display.asyncExec(r);
 	}
 }

@@ -1,9 +1,9 @@
 /**
  * Represents a single 'chart' point (logically represents an (x,y) location) 
+ * @autor Roy Rashti
  *
  */
 package model;
-
 import java.io.Serializable;
 
 public class Point implements Serializable {
@@ -31,4 +31,15 @@ public class Point implements Serializable {
 	 public void addY(int y) {m_y += y;}
 	 public int getX() {return m_x;}
 	 public int getY() {return m_y;}
+	 
+	 @Override
+	public
+	 boolean equals(Object o)
+	 {
+	    if (!(o instanceof Point)) {
+	    	return false;
+	    }
+	    Point op = (Point)o;
+	    return m_x == op.getX() && m_y == op.getY();
+	 }
 }

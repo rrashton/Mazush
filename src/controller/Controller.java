@@ -15,9 +15,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-import model.BFS;
 import model.IMazeGenerator;
 import view.IMazeView;
 import view.UI;
@@ -47,10 +45,10 @@ public class Controller {
 			num = Integer.parseInt(sizeInPX);
 		} catch(NumberFormatException exc) {
 		}
-		
+
 		return num;
 	}
-	
+
 	private void drawSolution(GC gc, Player p, int limit, Point path)
 	{
 		limit += 1; //The current position is also printed as a marked junction
@@ -71,7 +69,6 @@ public class Controller {
 	private void movePlayer(GC gc, Player p, IMazeGenerator.DIR dir)
 	{
 		m_ui.drawPlayer(gc, p, SWT.COLOR_WHITE);
-		System.out.println("("+p.actualLocation.getX()+","+p.actualLocation.getY()+") = " + m_matrix.getMaze()[p.actualLocation.getX()][p.actualLocation.getY()]);
 		switch(dir.value())
 		{
 		case 4:
@@ -79,7 +76,6 @@ public class Controller {
 			{
 				p.x -= p.widthStepSize;
 				p.actualLocation.addX(-1);
-				System.out.println("LEFT x from " + p.x + " to " + (p.x - p.widthStepSize));
 			}
 
 			break;
@@ -88,23 +84,20 @@ public class Controller {
 			if ((m_matrix.getMaze()[p.actualLocation.getX()][p.actualLocation.getY()] & IMazeGenerator.DIR.RIGHT.value()) != 0) {
 				p.x = p.x + p.widthStepSize;
 				p.actualLocation.addX(1);
-				System.out.println("RIGHT x from " + p.x + " to " + (p.x + p.widthStepSize));
+
 			}
 			break;
 
 		case 8:
 			if ((m_matrix.getMaze()[p.actualLocation.getX()][p.actualLocation.getY()] & IMazeGenerator.DIR.UP.value()) != 0) {
-				System.out.println("Up Y from " + p.y + " to " + (p.y + p.heightStepSize));
 				p.y = (p.y + p.heightStepSize);
 				p.actualLocation.addY(1);
 			}
 			break;
 
 		case 16:
-			System.out.println("Checking down");
 			if ((m_matrix.getMaze()[p.actualLocation.getX()][p.actualLocation.getY()] & IMazeGenerator.DIR.DOWN.value()) != 0) 
 			{
-				System.out.println("Down Y from " + p.y + " to " + (p.y - p.heightStepSize));
 				p.y = p.y - p.heightStepSize;
 				p.actualLocation.addY(-1);
 			}
@@ -114,7 +107,9 @@ public class Controller {
 			break;
 		}
 		m_ui.drawPlayer(gc, p, SWT.COLOR_BLUE);
-
+		if (p.actualLocation.equals(m_matrix.getEndPoint())) {
+			JOptionPane.showMessageDialog(null, "My Goodness, this is so concise");
+		}
 	}
 
 	public void initMaze()
@@ -126,7 +121,7 @@ public class Controller {
 				m_ui.paintCell(e.gc, SWT.COLOR_YELLOW, m_matrix.getEndPoint());
 			}
 		};
-		
+
 		m_ui.registerPainter(pa);
 		m_ui.openView();
 	}
@@ -135,7 +130,7 @@ public class Controller {
 	{
 		m_ui.waitToDispose();
 	}
-	
+
 	public void registerInputListener()
 	{
 		Listener l = new Listener(){
@@ -163,7 +158,6 @@ public class Controller {
 					break; 
 				}
 				case SWT.ARROW_RIGHT: {	
-					System.out.println("right");
 					PaintListener pa = new PaintListener(){ 
 						public void paintControl(PaintEvent e){
 							movePlayer(e.gc, p, IMazeGenerator.DIR.RIGHT);
@@ -196,13 +190,21 @@ public class Controller {
 					PaintListener pa = new PaintListener(){
 
 						public void paintControl(PaintEvent e){
-							
+
 							Point trail = remoteSolveMaze();
 							drawSolution(e.gc, p, steps, trail);
 							m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);
+
 						}
 					};
-					m_ui.paint(pa);
+					Runnable r = new Runnable() 
+					{
+						public void run() {
+							m_ui.paint(pa);
+						}
+					};
+					m_ui.runAsyncDisplay(r);
+
 					break; 
 				} 
 
@@ -217,45 +219,43 @@ public class Controller {
 		m_ui.registerKeyPressListener(l);
 	}
 
-
+	/**
+	 * Gets the solution of the maze from the server
+	 * @return The solution as a linked list of Points
+	 */
 	private Point remoteSolveMaze()
 	{
 		try{
-			System.out.println("Attempting connection");
 			Socket s = new Socket("127.0.0.1", Server.PORT);
-			System.out.println("Connected");
 			OutputStream os = s.getOutputStream();
-			System.out.println("Sending request");
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			oos.writeObject(m_matrix);
 			oos.writeObject(p.actualLocation);
 			InputStream is = s.getInputStream();
 			ObjectInputStream ois = new ObjectInputStream(is);
-			
 
-			System.out.println("Trying to read answer");
 			model.Point solvedPath = null;
 			while (solvedPath == null)
 			{
 				solvedPath = (model.Point)ois.readObject();
 			}
-			System.out.println("Read answer! it is (" + solvedPath.getX() +"," + solvedPath.getY()+")");
-			
-			
 			oos.close();		
 			s.close();
-			
+
 			return solvedPath;
-			
-			}
+
+		}
 		catch(Exception e){
 			System.out.println(e);}
 		return null;
 	}
-	
+
+	/**
+	 * Initializes the player object and returns it
+	 * @return A player initialized with the actual location and the relative location on the layout
+	 */
 	private Player initializePlayer()
 	{
-		//TODO: Fix the m_size to a func
 		int widthLineSize = (m_ui.getSize() - 100) / m_matrix.width();
 		int heightLineSize = (m_ui.getSize()- 100) / m_matrix.height();
 

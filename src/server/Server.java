@@ -3,17 +3,17 @@ package server;
 import java.net.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.plaf.ActionMapUIResource;
-
-import controller.Controller;
-import model.BFS;
-import model.MazeMatrix;
 import model.Point;
 
 import java.io.*;
 
+/**
+ * Represents a single worker thread that communicates with the client and solves the maze
+ * @author Roy Rashti
+ *
+ */
 class WorkerThread implements Runnable {
+	
 	private SolutionDataBase db = SolutionDataBase.fromFile();
 	private Socket m_sock;  
 	
@@ -37,11 +37,9 @@ class WorkerThread implements Runnable {
 			{
 				actualLocation = (model.Point)ois.readObject();
 			}
-			System.out.println("Got 2");
 			model.Point ret;
 			if (matrix ==null || actualLocation == null)
 			{
-				System.out.println("Error fuck it");
 				ret = new Point(0, 0, null);
 			}
 			else {
@@ -64,19 +62,32 @@ class WorkerThread implements Runnable {
 	}    
 }  
 
+/**
+ * Represents the server entity which holds a threadpool for the connections
+ * @author Roy Rashti
+ *
+ */
 public class Server{
+	// The listening port
 	public static final int PORT = 5525;
+	
+	// Maximum threadpool size
 	private static final int THREAD_POOL_SIZE = 50;
 	
-	
+	/**
+	 * The main function that accepts connection and initializes sessions between the server and the client
+	 */
 	public static void listen() {
 
+		// Initialize threadpool
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		try {
 			ServerSocket ss = new ServerSocket(PORT);
 			System.out.println("Server is listening");
 
 			Socket s = null;
+			
+			// Always keep accepting connections
 			while (true)
 			{
 				s = ss.accept();
@@ -84,7 +95,8 @@ public class Server{
 				executor.execute(work);
 			}
 		}
-		catch(Exception e){System.out.println(e);}
+		catch(Exception e) {
+			System.out.println(e);}
 	}
 
 	public static void main(String[] args)
