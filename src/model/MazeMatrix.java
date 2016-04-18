@@ -12,6 +12,10 @@ import java.util.Random;
  */
 public class MazeMatrix implements IMazeGenerator {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int m_minimumTrailLength;
 	private int m_startX;
 	private int m_startY;
@@ -212,6 +216,32 @@ public class MazeMatrix implements IMazeGenerator {
 		m_end = new Point(x, y, null);
 	}
 
+	 @Override
+	  public boolean equals(Object o)
+	  {
+		 MazeMatrix other = (MazeMatrix)o;
+		 if (m_height != other.height()) {
+			 return false;
+		 }
+		 if (m_width != other.width()) {
+			 return false;
+		 }
+		 for(int i = 0; i < m_maze.length; ++i)
+		 {
+			 for (int j = 0; i < m_maze[0].length; ++j)
+			 {
+				 if (m_maze[i][j] != other.getMaze()[i][j]) {
+					 return false;
+				 }
+			 }
+		 }
+		 
+		 if (m_startX != other.getStartX()) {
+			 return false;
+		 }
+		 return m_startY == other.getStartY(); 
+	  }
+	 
 	@Override
 	public Point getEndPoint() {
 		return m_end;

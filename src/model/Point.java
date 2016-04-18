@@ -3,7 +3,14 @@
  *
  */
 package model;
-public class Point {
+
+import java.io.Serializable;
+
+public class Point implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int m_x;
 	private int m_y;
 	private Point m_parent;

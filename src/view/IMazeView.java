@@ -1,5 +1,7 @@
 package view;
 
+import java.io.Serializable;
+
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Listener;
@@ -7,7 +9,7 @@ import org.eclipse.swt.widgets.Listener;
 import model.Player;
 import model.Point;
 
-public interface IMazeView {
+public interface IMazeView extends Serializable{
 
 	public void paintCell(GC gc, int color, Point p);
 

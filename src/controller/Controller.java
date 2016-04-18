@@ -1,6 +1,11 @@
 package controller;
 
 
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -10,12 +15,15 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 import model.BFS;
 import model.IMazeGenerator;
 import view.IMazeView;
 import view.UI;
 import model.Player;
 import model.Point;
+import server.Server;
 
 public class Controller {
 
@@ -188,8 +196,8 @@ public class Controller {
 					PaintListener pa = new PaintListener(){
 
 						public void paintControl(PaintEvent e){
-							BFS b = new BFS();
-							Point trail = b.solve(m_matrix, p.actualLocation);
+							
+							Point trail = remoteSolveMaze();
 							drawSolution(e.gc, p, steps, trail);
 							m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);
 						}
@@ -209,6 +217,41 @@ public class Controller {
 		m_ui.registerKeyPressListener(l);
 	}
 
+
+	private Point remoteSolveMaze()
+	{
+		try{
+			System.out.println("Attempting connection");
+			Socket s = new Socket("127.0.0.1", Server.PORT);
+			System.out.println("Connected");
+			OutputStream os = s.getOutputStream();
+			System.out.println("Sending request");
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(m_matrix);
+			oos.writeObject(p.actualLocation);
+			InputStream is = s.getInputStream();
+			ObjectInputStream ois = new ObjectInputStream(is);
+			
+
+			System.out.println("Trying to read answer");
+			model.Point solvedPath = null;
+			while (solvedPath == null)
+			{
+				solvedPath = (model.Point)ois.readObject();
+			}
+			System.out.println("Read answer! it is (" + solvedPath.getX() +"," + solvedPath.getY()+")");
+			
+			
+			oos.close();		
+			s.close();
+			
+			return solvedPath;
+			
+			}
+		catch(Exception e){
+			System.out.println(e);}
+		return null;
+	}
 	
 	private Player initializePlayer()
 	{

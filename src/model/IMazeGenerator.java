@@ -1,6 +1,8 @@
 package model;
 
-public interface IMazeGenerator {
+import java.io.Serializable;
+
+public interface IMazeGenerator extends Serializable {
 	public int[][] getMaze();
 
 	public int getStartY();
