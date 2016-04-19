@@ -15,7 +15,7 @@ public interface IMazeGenerator extends Serializable {
 	 * that one can access a nearby cell at that direction from the current cell
 	 */
 	public int[][] getMaze();
-
+	
 	/**
 	 * Returns the start point's Y value
 	 */
@@ -48,5 +48,4 @@ public interface IMazeGenerator extends Serializable {
 		DIR(int dir) { this.dir = dir; }
 		public int value() { return dir; }
 	}
-
 }

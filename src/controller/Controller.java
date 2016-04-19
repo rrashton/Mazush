@@ -108,7 +108,7 @@ public class Controller {
 		}
 		m_ui.drawPlayer(gc, p, SWT.COLOR_BLUE);
 		if (p.actualLocation.equals(m_matrix.getEndPoint())) {
-			JOptionPane.showMessageDialog(null, "My Goodness, this is so concise");
+			JOptionPane.showMessageDialog(null, "You solved the maze!");
 		}
 	}
 
@@ -148,7 +148,6 @@ public class Controller {
 					break; 
 				}
 				case SWT.ARROW_LEFT: {
-					//TODO: Throw this code out to a function
 					PaintListener pa = new PaintListener(){ 
 						public void paintControl(PaintEvent e){
 							movePlayer(e.gc, p, IMazeGenerator.DIR.LEFT);
@@ -176,8 +175,10 @@ public class Controller {
 					break; 
 				} 
 
-				case 'F':
-				case 'f': {
+				case 'b':
+				case 'B':
+				case 'A':
+				case 'a': {
 					String numberOfSteps = JOptionPane.showInputDialog(
 							"Enter amount of steps you wish to see. Illegal input will result a full solution");
 					//
@@ -191,7 +192,7 @@ public class Controller {
 
 						public void paintControl(PaintEvent e){
 
-							Point trail = remoteSolveMaze();
+							Point trail = remoteSolveMaze((char)event.keyCode);
 							drawSolution(e.gc, p, steps, trail);
 							m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);
 
@@ -223,7 +224,7 @@ public class Controller {
 	 * Gets the solution of the maze from the server
 	 * @return The solution as a linked list of Points
 	 */
-	private Point remoteSolveMaze()
+	private Point remoteSolveMaze(char algorithm)
 	{
 		try{
 			Socket s = new Socket("127.0.0.1", Server.PORT);
@@ -231,6 +232,7 @@ public class Controller {
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			oos.writeObject(m_matrix);
 			oos.writeObject(p.actualLocation);
+			oos.writeObject(algorithm);
 			InputStream is = s.getInputStream();
 			ObjectInputStream ois = new ObjectInputStream(is);
 

@@ -42,4 +42,11 @@ public class Point implements Serializable {
 	    Point op = (Point)o;
 	    return m_x == op.getX() && m_y == op.getY();
 	 }
+	 
+	 @Override
+	  public int hashCode() {
+		 int A = m_x;
+		 int B = m_y;
+		 return (A + B) * (A + B + 1) / 2 + A;
+	 }
 }

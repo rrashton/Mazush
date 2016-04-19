@@ -24,13 +24,14 @@ public class Pair<F,S> implements Serializable{
   /*
    * S getter
    */
-  public S getRight() { return second; }
+  public S getSecond() { return second; }
 
   /*
    * Override for hashcode (inherited from Object)
    */
   @Override
-  public int hashCode() { return first.hashCode() ^ second.hashCode(); }
+  public int hashCode() { 
+	  return first.hashCode() ^ second.hashCode(); }
 
   /*
    * Override for equals(inherited from Object)
@@ -42,7 +43,7 @@ public class Pair<F,S> implements Serializable{
     }
     Pair pairo = (Pair) o;
     return this.first.equals(pairo.getfirst()) &&
-           this.second.equals(pairo.getRight());
+           this.second.equals(pairo.getSecond());
   }
 
 }

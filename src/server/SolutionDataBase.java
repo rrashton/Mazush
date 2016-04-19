@@ -5,7 +5,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import model.BFS;
+
+import model.IMazeSolveStrategy;
 import model.MazeMatrix;
 import model.Point;
 
@@ -18,6 +19,7 @@ public class SolutionDataBase {
 
 	// Filename of the database
 	private static String dbName = "solutions.db";
+	private HashMap<Pair<MazeMatrix, Point>, Point> m_dict;
 	
 	/**
 	 * Serializes the current database that's kept on the RAM to the HDD
@@ -102,7 +104,7 @@ public class SolutionDataBase {
 	 * @param startingPoint	The starting point within the matrix
 	 * @return	Solution for the maze and starting point
 	 */
-	public Point getSolution(MazeMatrix matrix, Point startingPoint)
+	public Point getSolution(MazeMatrix matrix, Point startingPoint, char solverAlgorithm)
 	{
 		Pair<MazeMatrix, Point> p = new Pair<MazeMatrix, Point>(matrix, startingPoint);
 		Point solution = null;
@@ -114,16 +116,17 @@ public class SolutionDataBase {
 		}
 		
 		if (null != solution) {
+			System.out.println("Cached solution has been found");
 			return solution;
 		}
 		
-		BFS b = new BFS();
-		solution = b.solve(matrix, startingPoint);
+		IMazeSolveStrategy solver = (solverAlgorithm == 'b' || solverAlgorithm == 'B') ? new BFS() : new AStar();
+		solution = solver.solve(matrix, startingPoint);
 		m_dict.put(p, solution);
-		serializeToFile();
+		serializeToFile();	
 		return solution;
 		
 	}
 	
-	private HashMap<Pair<MazeMatrix, model.Point>, model.Point> m_dict;
+
 }

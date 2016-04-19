@@ -24,6 +24,7 @@ public class MazeMatrix implements IMazeGenerator {
 	private int[][] m_maze;
 	private boolean m_isMazeInitialized;
 	private Point m_end;
+	private int m_uid;
 	
 	/**
 	 * C'tor, initializes necessary members
@@ -37,6 +38,8 @@ public class MazeMatrix implements IMazeGenerator {
 		m_width = width;	
 		m_isMazeInitialized = false;
 		m_minimumTrailLength = (height + width) / 2;
+		 Random rand = new Random();
+		 m_uid = Math.abs(rand.nextInt());
 	}
 
 	@Override
@@ -53,10 +56,6 @@ public class MazeMatrix implements IMazeGenerator {
 	public int width() {return m_width;}
 	public void setWidth (int width) {m_width = width;}
 
-	/**
-	 * Returns the maze
-	 * @return
-	 */
 	@Override
 	public int[][] getMaze()
 	{
@@ -64,15 +63,8 @@ public class MazeMatrix implements IMazeGenerator {
 			generateMaze();
 			m_isMazeInitialized = true;
 		}
+		return m_maze;
 
-
-		final int[][] result = new int[m_maze.length][m_maze[0].length];
-
-		for (int i = 0; i < result.length; ++i)
-			result[i] = Arrays.copyOf(m_maze[i], m_maze[i].length);
-
-
-		return result;
 	}
 
 	/**
@@ -228,7 +220,8 @@ public class MazeMatrix implements IMazeGenerator {
 		 }
 		 for(int i = 0; i < m_maze.length; ++i)
 		 {
-			 for (int j = 0; i < m_maze[0].length; ++j)
+			 int a = m_maze[0].length;
+			 for (int j = 0; j < m_maze[0].length; ++j)
 			 {
 				 if (m_maze[i][j] != other.getMaze()[i][j]) {
 					 return false;
@@ -242,6 +235,11 @@ public class MazeMatrix implements IMazeGenerator {
 		 return m_startY == other.getStartY(); 
 	  }
 	 
+	  @Override
+	  public int hashCode() {
+		  return m_uid % 300;
+	  }
+	  
 	@Override
 	public Point getEndPoint() {
 		return m_end;

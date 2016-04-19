@@ -12,6 +12,7 @@ public class main {
 		MazeMatrix m = new MazeMatrix(size, size); 
 		Controller c = new Controller(m);
 		c.initMaze();
+		JOptionPane.showMessageDialog(null, "Welcome to the maze!\n Press A to receive a A* clue, B for BFS.\nNavigate using the arrows,\nEnjoy!");
 		c.registerInputListener();
 		c.waitToDispose();
 	}
