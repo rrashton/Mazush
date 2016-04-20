@@ -70,8 +70,12 @@ class WorkerThread implements Runnable {
 	}  
 	public void run() {  
 		try {
-
-			System.out.println("Accepted a connection");
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			InputStream is = m_sock.getInputStream();
 			ObjectInputStream ois = new ObjectInputStream(is);
 			MazeMatrix matrix = null;

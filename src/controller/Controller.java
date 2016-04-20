@@ -191,11 +191,26 @@ public class Controller {
 					PaintListener pa = new PaintListener(){
 
 						public void paintControl(PaintEvent e){
-
-							Point trail = remoteSolveMaze((char)event.keyCode);
-							drawSolution(e.gc, p, steps, trail);
-							m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);
-
+							Runnable r = new Runnable() {
+								
+								@Override
+								public void run() {
+									Point trail = remoteSolveMaze((char)event.keyCode);
+									Runnable innerRunnableDisplay = new Runnable() {
+										
+										@Override
+										public void run() {
+											drawSolution(e.gc, p, steps, trail);
+											m_ui.drawPlayer(e.gc, p, SWT.COLOR_BLUE);											
+										}
+									};
+									m_ui.runAsyncDisplay(innerRunnableDisplay);
+									//innerRunnableDisplay.run();
+											
+								}
+							};
+							Thread t = new Thread(r);
+							t.start();
 						}
 					};
 					Runnable r = new Runnable() 

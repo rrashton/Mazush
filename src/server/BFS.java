@@ -22,12 +22,12 @@ public class BFS implements IMazeSolveStrategy{
 	/**
 	 * Finds a path from the entrance of the maze to it's exit.
 	 * The function works by Best Search First (BFS) algorithm
-	 * @param matrix	The matrix object on which we wish to run the algorithm on
+	 * @param board	The matrix object on which we wish to run the algorithm on
 	 * @return	A point describing the found exit, which is linked to the entire path of the trail.
 	 * 			null if not found
 	 */
 	@Override
-	public Point solve(IMazeGenerator matrix, Point start) {
+	public Point solve(ISolveable board, Point start) {
 		final Queue<Point> optional = new LinkedList<Point>();
         final ArrayList<Point> nonOptionalPaths = new ArrayList<Point>();
 		optional.add(start);
@@ -35,11 +35,11 @@ public class BFS implements IMazeSolveStrategy{
 		while (optional.size() > 0) 
 		{
 			current = optional.poll();
-			if (current.equals(matrix.getEndPoint())) {
+			if (current.equals(board.getEndPoint())) {
 				return current;
 			}
 			nonOptionalPaths.add(current);
-			LinkedList<Point> nextPathOptions = SolveUtils.getAvailableDirections(matrix, current);
+			LinkedList<Point> nextPathOptions = board.getAvailableDirections(current);
 
 			for(Point p : nextPathOptions) { 
 				if (!optional.contains(current) && nonOptionalPaths.contains(current))

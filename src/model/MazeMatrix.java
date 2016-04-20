@@ -2,6 +2,7 @@ package model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Random;
 
 /**
@@ -244,4 +245,36 @@ public class MazeMatrix implements IMazeGenerator {
 	public Point getEndPoint() {
 		return m_end;
 	}
+
+	@Override
+	public LinkedList<Point> getAvailableDirections(Point location) {
+		
+		LinkedList<Point> avilableDirections = new LinkedList<Point>();
+		// Add all of the available directions to the queue
+        if(isVisitable(location, MazeMatrix.DIR.UP, m_maze)) {
+            Point nextP = new Point(location.getX(), location.getY() + 1, location);
+            avilableDirections.add(nextP);
+        }
+
+         if(isVisitable(location, MazeMatrix.DIR.DOWN, m_maze)) {
+            Point nextP = new Point(location.getX(), location.getY() - 1, location);
+            avilableDirections.add(nextP);
+        }
+
+        if(isVisitable(location, MazeMatrix.DIR.RIGHT, m_maze)) {
+            Point nextP = new Point(location.getX() + 1 ,location.getY(), location);
+            avilableDirections.add(nextP);
+        }
+
+        if(isVisitable(location, MazeMatrix.DIR.LEFT, m_maze)) {
+            Point nextP = new Point(location.getX() - 1, location.getY(), location);
+            avilableDirections.add(nextP);
+        }
+        
+        return avilableDirections;
+	}
+	
+	private static boolean isVisitable(Point current, MazeMatrix.DIR dir, int[][] arr) {
+        return 0 != (arr[current.getX()][current.getY()] & dir.value());
+    }
 }

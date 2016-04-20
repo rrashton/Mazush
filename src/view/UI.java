@@ -4,6 +4,7 @@ import model.Player;
 import model.IMazeGenerator;
 import model.Point;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridLayout;
@@ -40,9 +41,15 @@ public class UI implements IMazeView{
 	@Override
 	public void drawPlayer(GC gc, Player p, int color)
 	{
-		//Display display = Display.getCurrent();
-		gc.setBackground(display.getSystemColor(color));
-		gc.fillOval(p.x, p.y, p.xSize, p.ySize);
+		try {
+			gc.setBackground(display.getSystemColor(color));
+			gc.fillOval(p.x, p.y, p.xSize, p.ySize);	
+		} catch (SWTException e) {
+			GC newGC = new GC(shell);
+			newGC.fillOval(p.x, p.y, p.xSize, p.ySize);
+			newGC.setBackground(display.getSystemColor(color));
+		}
+		
 	}
 
 	@Override
@@ -52,9 +59,18 @@ public class UI implements IMazeView{
 		int heightLineSize = (m_size - 100) / m_maze.height();
 		int xStartPoint = 50 + widthLineSize * p.getX();
 		int yStartPoint = 50 + heightLineSize * p.getY();
-		Display display = Display.getCurrent();
-		gc.setBackground(display.getSystemColor(color));
-		gc.fillRectangle(xStartPoint + 2, yStartPoint + 2, widthLineSize - 4, heightLineSize - 4);
+		Display display = Display.getDefault();
+		try {
+			gc.setBackground(display.getSystemColor(color));
+			gc.fillRectangle(xStartPoint + 2, yStartPoint + 2, widthLineSize - 4, heightLineSize - 4);
+			// In case that the Display changed, the UI loader my differ and the GC is no longer relevant.
+		} catch (SWTException e) {
+			GC gcNew = new GC(shell);
+			gcNew.setBackground(display.getSystemColor(color));
+			gcNew.fillRectangle(xStartPoint + 2, yStartPoint + 2, widthLineSize - 4, heightLineSize - 4);
+		}
+		
+		
 	}
 	
 	@Override
@@ -89,6 +105,14 @@ public class UI implements IMazeView{
 	@Override 
 	public void refresh()
 	{
+		Runnable r = new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 		shell.redraw();
 		shell.update();
 	}
@@ -150,6 +174,12 @@ public class UI implements IMazeView{
 
 	@Override
 	public void runAsyncDisplay(Runnable r) {
-		display.asyncExec(r);
+		Display dis = Display.getDefault();
+		if (!dis.isDisposed()) {
+			dis.asyncExec(r);
+		} else {
+			System.out.println("Display is disposed");
+		}
+		//display.asyncExec(r);
 	}
 }

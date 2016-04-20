@@ -2,11 +2,13 @@ package model;
 
 import java.io.Serializable;
 
+import server.ISolveable;
+
 /**
  * Maze Generator interface
  * @author Roy Rashti
  */
-public interface IMazeGenerator extends Serializable {
+public interface IMazeGenerator extends Serializable, ISolveable{
 	
 	/**
 	 * Returns the maze, represented by a two dimensional array.

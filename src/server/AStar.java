@@ -13,15 +13,15 @@ public class AStar implements IMazeSolveStrategy
 {
 	
 		 
-	private int getHeuristicPriority(IMazeGenerator matrix, Point p)
+	private int getHeuristicPriority(ISolveable board, Point p)
 	{
-		int distance = Math.abs(p.getX() - matrix.getEndPoint().getX());
-		distance += Math.abs(p.getY() - matrix.getEndPoint().getY());
+		int distance = Math.abs(p.getX() - board.getEndPoint().getX());
+		distance += Math.abs(p.getY() - board.getEndPoint().getY());
 		return distance;
 	}
 
 	@Override
-	public Point solve(IMazeGenerator matrix, Point start) {
+	public Point solve(ISolveable board, Point start) {
 		Comparator<PriorityNode> comp = new Comparator<PriorityNode>() 
 		{
 			public int compare(PriorityNode lhs, PriorityNode rhs) {
@@ -40,15 +40,15 @@ public class AStar implements IMazeSolveStrategy
 		while(pQueue.size() > 0)
 		{
             current = pQueue.poll();
-			if (current.location.equals(matrix.getEndPoint())) {
+			if (current.location.equals(board.getEndPoint())) {
 				return current.location;
 			}
-			LinkedList<Point> nextPathOpts = SolveUtils.getAvailableDirections(matrix, current.location);
+			LinkedList<Point> nextPathOpts = board.getAvailableDirections(current.location);
 
 			for(Point p : nextPathOpts) { 
 				// Get current length and raise it by one (since we moved once more)
 				double len = trailLen.get(current) + 1;
-				PriorityNode n = new PriorityNode(p, getHeuristicPriority(matrix, p));
+				PriorityNode n = new PriorityNode(p, getHeuristicPriority(board, p));
 				// If the trail does not contain the key or it contains it as a longer path, update it
 				if ((!trailLen.containsKey(n) || len < trailLen.get(n))) {
 					trailLen.put(n, len);
