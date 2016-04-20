@@ -27,6 +27,7 @@ public class Server{
 	 */
 	public static void listen() {
 
+		
 		System.out.println("Listening on port " + PORT);
 		db = SolutionDataBase.fromFile();
 		// Initialize threadpool
